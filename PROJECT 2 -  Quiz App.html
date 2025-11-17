@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Quiz App — JavaScript Basics</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    margin: 0;
+    background: #111 url('Wallpaper.jpg') no-repeat center/cover;
+    color: #fff;
+    min-height: 100vh;
+  }
+  h2 { text-align: center; margin-bottom: 30px; }
+  #quiz, #result { max-width: 600px; margin: auto; background: rgba(0,0,0,0.6); padding: 20px; border-radius: 10px; }
+  .option { display: block; margin: 8px 0; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; border: none; background: #333; color: #fff; text-align: left; }
+  .option:disabled { opacity: 0.6; cursor: not-allowed; }
+  button.nav { padding: 10px 15px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+  #nextBtn { background-color: green; color: #fff; }
+  #prevBtn { background-color: #555; color: #fff; }
+  #skipBtn { background-color: #888; color: #fff; }
+  #saveBtn { background-color: yellow; color: #000; }
+  #progress { margin-top: 15px; font-weight: bold; }
+  #restart {
+    display: block;
+    margin: 20px auto;
+    padding: 12px 25px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #444;
+    color: #fff;
+  }
+</style>
+</head>
+<body>
+<h2>Quiz App — JavaScript Basics</h2>
+
+<div id="quiz">
+  <div id="qText"></div>
+  <div id="options"></div>
+  <div>
+    <button id="prevBtn" class="nav">Prev</button>
+    <button id="skipBtn" class="nav">Skip</button>
+    <button id="saveBtn" class="nav">Save & Continue</button>
+    <button id="nextBtn" class="nav" disabled>Next</button>
+  </div>
+  <div id="progress"></div>
+</div>
+
+<div id="result" style="display:none">
+  <h3>Result</h3>
+  <p id="scoreText"></p>
+  <button id="restart">Restart Quiz</button>
+</div>
+
+<script>
+const QUESTIONS = [
+  { text:'What language runs in the browser?', choices:['Java','C','Python','JavaScript'], correct:3 },
+  { text:'Which company created the React library?', choices:['Google','Facebook','Microsoft','Amazon'], correct:1 },
+  { text:'What does CSS stand for?', choices:['Cascading Style Sheets','Computer Style Sheets','Creative Style System','Colorful Style Sheets'], correct:0 },
+  { text:'Which HTML tag is used for a paragraph?', choices:['<p>','<div>','<span>','<h1>'], correct:0 },
+  { text:'Which symbol is used for comments in JavaScript?', choices:['//','/* */','#','<>'], correct:0 },
+  { text:'How do you declare a variable in JS?', choices:['var','let','const','All of the above'], correct:3 },
+  { text:'Which operator is used for equality?', choices:['=','==','===','!='], correct:2 },
+  { text:'Which method converts JSON to object?', choices:['JSON.parse','JSON.stringify','parseJSON','toJSON'], correct:0 },
+  { text:'How to create a function?', choices:['function myFunc()','def myFunc()','func myFunc()','create myFunc()'], correct:0 },
+  { text:'Which keyword stops a loop?', choices:['break','stop','exit','return'], correct:0 },
+  { text:'Which method adds an element to array end?', choices:['push','pop','shift','unshift'], correct:0 },
+  { text:'Which event triggers when an HTML element is clicked?', choices:['onclick','onhover','onchange','onload'], correct:0 },
+  { text:'What does DOM stand for?', choices:['Document Object Model','Data Object Model','Document Oriented Method','Display Object Model'], correct:0 },
+  { text:'How do you write a strict equality check?', choices:['==','===','!=','<>'], correct:1 },
+  { text:'Which method removes the last element from an array?', choices:['pop','push','shift','unshift'], correct:0 }
+];
+
+let questions = [];
+let current = 0;
+let score = 0;
+let userAnswers = Array(QUESTIONS.length).fill(null);
+
+const qText = document.getElementById('qText');
+const optionsDiv = document.getElementById('options');
+const nextBtn = document.getElementById('nextBtn');
+const prevBtn = document.getElementById('prevBtn');
+const skipBtn = document.getElementById('skipBtn');
+const saveBtn = document.getElementById('saveBtn');
+const progress = document.getElementById('progress');
+const resultDiv = document.getElementById('result');
+const scoreText = document.getElementById('scoreText');
+const restart = document.getElementById('restart');
+
+function shuffleArray(a){
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function startQuiz(){
+  questions = shuffleArray(QUESTIONS.slice());
+  current=0; score=0;
+  userAnswers.fill(null);
+  resultDiv.style.display='none';
+  document.getElementById('quiz').style.display='';
+  loadQuestion();
+}
+
+function loadQuestion(){
+  const q = questions[current];
+  qText.textContent = (current+1) + '. ' + q.text;
+  optionsDiv.innerHTML='';
+  q.choices.forEach((choice, idx)=>{
+    const btn = document.createElement('button');
+    btn.textContent = choice;
+    btn.className='option';
+    btn.disabled = false;
+    if(userAnswers[current] !== null){ btn.disabled=true; }
+    btn.addEventListener('click', ()=>selectAnswer(idx, btn));
+    optionsDiv.appendChild(btn);
+  });
+  nextBtn.disabled = true;
+  if(userAnswers[current] !== null) nextBtn.disabled=false;
+
+  progress.textContent = `Question ${current+1} of ${questions.length} | Score ${score}/${questions.length}`;
+}
+
+function selectAnswer(idx, btn){
+  if(userAnswers[current] !== null) return;
+  userAnswers[current] = idx;
+  const q = questions[current];
+  const allButtons = optionsDiv.querySelectorAll('button');
+  allButtons.forEach(b=>b.disabled=true);
+
+  if(idx===q.correct){ score++; btn.textContent+=' ✅'; }
+  else { btn.textContent+=' ❌'; allButtons[q.correct].textContent+=' ✅'; }
+
+  nextBtn.disabled = false;
+}
+
+nextBtn.addEventListener('click', ()=>{
+  if(current<questions.length-1){ current++; loadQuestion(); }
+  else showResult();
+});
+
+prevBtn.addEventListener('click', ()=>{
+  if(current>0){ current--; loadQuestion(); }
+});
+
+skipBtn.addEventListener('click', ()=>{
+  if(current<questions.length-1){ current++; loadQuestion(); }
+});
+
+saveBtn.addEventListener('click', ()=>{
+  if(userAnswers[current]===null) return;
+  if(current<questions.length-1){ current++; loadQuestion(); }
+  else showResult();
+});
+
+function showResult(){
+  document.getElementById('quiz').style.display='none';
+  resultDiv.style.display='';
+  scoreText.textContent = `You scored ${score} out of ${questions.length}`;
+}
+
+restart.addEventListener('click', startQuiz);
+
+startQuiz();
+</script>
+</body>
+</html>

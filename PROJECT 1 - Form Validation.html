@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Job Resume Form — Java Script</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      margin: 0;
+      background: #111 url('Wallpaper.jpg') no-repeat center/cover;
+      color: #fff;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+    h2 { text-align: center; margin-bottom: 30px; }
+    form {
+      max-width: 500px;
+      margin: auto;
+      background: rgba(0,0,0,0.6);
+      padding: 20px;
+      border-radius: 10px;
+    }
+    .field { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; }
+    input, select, textarea {
+      padding: 8px;
+      width: 100%;
+      border: none;
+      border-radius: 5px;
+      margin-bottom: 5px;
+    }
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    #submitBtn { background-color: green; color: #fff; }
+    #resetBtn { background-color: red; color: #fff; }
+    .error { color: #ff6666; font-size: 0.9em; }
+    .success { color: #66ff66; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h2>Job Resume Form — Java Script</h2>
+
+  <form id="form">
+    <div class="field">
+      <label for="name">Full Name</label>
+      <input id="name" type="text" />
+      <div id="nameErr" class="error"></div>
+    </div>
+
+    <div class="field">
+      <label for="email">Email</label>
+      <input id="email" type="text" />
+      <div id="emailErr" class="error"></div>
+    </div>
+
+    <div class="field">
+      <label for="phone">Phone Number</label>
+      <input id="phone" type="text" />
+      <div id="phoneErr" class="error"></div>
+    </div>
+
+    <div class="field">
+      <label for="password">Password</label>
+      <input id="password" type="password" />
+      <div id="passwordErr" class="error"></div>
+    </div>
+
+    <div class="field">
+      <label for="education">Highest Education</label>
+      <select id="education">
+        <option value="">Select</option>
+        <option value="High School">High School</option>
+        <option value="Bachelor's">Bachelor's</option>
+        <option value="Master's">Master's</option>
+        <option value="PhD">PhD</option>
+      </select>
+      <div id="educationErr" class="error"></div>
+    </div>
+
+    <div class="field">
+      <label for="experience">Years of Experience</label>
+      <input id="experience" type="number" min="0" />
+      <div id="experienceErr" class="error"></div>
+    </div>
+
+    <div class="field">
+      <label for="skills">Skills (comma separated)</label>
+      <input id="skills" type="text" />
+      <div id="skillsErr" class="error"></div>
+    </div>
+
+    <div class="field">
+      <label for="linkedin">LinkedIn Profile</label>
+      <input id="linkedin" type="text" />
+      <div id="linkedinErr" class="error"></div>
+    </div>
+
+    <div class="field">
+      <label for="portfolio">Portfolio / GitHub</label>
+      <input id="portfolio" type="text" />
+      <div id="portfolioErr" class="error"></div>
+    </div>
+
+    <div class="field">
+      <label for="cover">Cover Letter</label>
+      <textarea id="cover" rows="4"></textarea>
+      <div id="coverErr" class="error"></div>
+    </div>
+
+    <button type="submit" id="submitBtn">Submit</button>
+    <button type="button" id="resetBtn">Reset</button>
+  </form>
+
+  <p id="status"></p>
+
+  <script>
+    const form = document.getElementById('form');
+    const status = document.getElementById('status');
+
+    const fields = {
+      name: document.getElementById('name'),
+      email: document.getElementById('email'),
+      phone: document.getElementById('phone'),
+      password: document.getElementById('password'),
+      education: document.getElementById('education'),
+      experience: document.getElementById('experience'),
+      skills: document.getElementById('skills'),
+      linkedin: document.getElementById('linkedin'),
+      portfolio: document.getElementById('portfolio'),
+      cover: document.getElementById('cover')
+    };
+
+    const errors = {
+      name: document.getElementById('nameErr'),
+      email: document.getElementById('emailErr'),
+      phone: document.getElementById('phoneErr'),
+      password: document.getElementById('passwordErr'),
+      education: document.getElementById('educationErr'),
+      experience: document.getElementById('experienceErr'),
+      skills: document.getElementById('skillsErr'),
+      linkedin: document.getElementById('linkedinErr'),
+      portfolio: document.getElementById('portfolioErr'),
+      cover: document.getElementById('coverErr')
+    };
+
+    function showError(el, msg){ el.textContent = msg }
+    function clearError(el){ el.textContent = '' }
+
+    function isValidEmail(email){
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
+    }
+
+    function isStrongPassword(pw){
+      if (pw.length < 6) return false;
+      return /[A-Za-z]/.test(pw) && /[0-9]/.test(pw);
+    }
+
+    function isValidPhone(phone){
+      return /^[0-9]{10}$/.test(phone);
+    }
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      status.textContent = '';
+      let ok = true;
+
+      // Name
+      if(fields.name.value.trim().length < 3){ showError(errors.name,'Name must be at least 3 chars'); ok=false; } else clearError(errors.name);
+
+      // Email
+      if(!isValidEmail(fields.email.value.trim())){ showError(errors.email,'Invalid email'); ok=false; } else clearError(errors.email);
+
+      // Phone
+      if(!isValidPhone(fields.phone.value.trim())){ showError(errors.phone,'Enter 10-digit number'); ok=false; } else clearError(errors.phone);
+
+      // Password
+      if(!isStrongPassword(fields.password.value)){ showError(errors.password,'Password 6+ chars, letters & numbers'); ok=false; } else clearError(errors.password);
+
+      // Education
+      if(fields.education.value===''){ showError(errors.education,'Select education'); ok=false; } else clearError(errors.education);
+
+      // Experience
+      if(fields.experience.value===''){ showError(errors.experience,'Enter experience'); ok=false; } else clearError(errors.experience);
+
+      // Skills
+      if(fields.skills.value.trim()===''){ showError(errors.skills,'Enter at least one skill'); ok=false; } else clearError(errors.skills);
+
+      // LinkedIn
+      if(fields.linkedin.value.trim()===''){ showError(errors.linkedin,'Enter LinkedIn URL'); ok=false; } else clearError(errors.linkedin);
+
+      // Portfolio
+      if(fields.portfolio.value.trim()===''){ showError(errors.portfolio,'Enter portfolio/GitHub URL'); ok=false; } else clearError(errors.portfolio);
+
+      // Cover Letter
+      if(fields.cover.value.trim()===''){ showError(errors.cover,'Enter cover letter'); ok=false; } else clearError(errors.cover);
+
+      if(!ok){ status.textContent='Fix errors above'; status.className='error'; return; }
+
+      status.textContent='Form submitted successfully!';
+      status.className='success';
+      form.reset();
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', function(){
+      form.reset();
+      for(let key in errors){ clearError(errors[key]); }
+      status.textContent='';
+    });
+  </script>
+</body>
+</html>
