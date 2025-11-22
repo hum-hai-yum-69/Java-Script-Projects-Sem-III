@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>Quiz App — JavaScript Basics</title>
+
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -12,16 +13,67 @@
     color: #fff;
     min-height: 100vh;
   }
-  h2 { text-align: center; margin-bottom: 30px; }
-  #quiz, #result { max-width: 600px; margin: auto; background: rgba(0,0,0,0.6); padding: 20px; border-radius: 10px; }
-  .option { display: block; margin: 8px 0; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; border: none; background: #333; color: #fff; text-align: left; }
-  .option:disabled { opacity: 0.6; cursor: not-allowed; }
-  button.nav { padding: 10px 15px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
-  #nextBtn { background-color: green; color: #fff; }
-  #prevBtn { background-color: #555; color: #fff; }
-  #skipBtn { background-color: #888; color: #fff; }
-  #saveBtn { background-color: yellow; color: #000; }
-  #progress { margin-top: 15px; font-weight: bold; }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  #quiz, #result {
+    max-width: 600px;
+    margin: auto;
+    background: rgba(0,0,0,0.6);
+    padding: 20px;
+    border-radius: 10px;
+  }
+
+  .option {
+    display: block;
+    margin: 8px 0;
+    padding: 10px;
+    width: 100%;
+    border-radius: 5px;
+    cursor: pointer;
+    border: none;
+    background: #333;
+    color: #fff;
+    text-align: left;
+  }
+
+  .option:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  button.nav {
+    padding: 10px 15px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  /* UPDATED BUTTON COLORS */
+  #prevBtn {
+    background-color: #555;
+    color: #fff;
+  }
+
+  #skipBtn {
+    background-color: yellow;
+    color: #000;
+  }
+
+  #saveBtn {
+    background-color: green;
+    color: #fff;
+  }
+
+  #progress {
+    margin-top: 15px;
+    font-weight: bold;
+  }
+
   #restart {
     display: block;
     margin: 20px auto;
@@ -35,18 +87,20 @@
   }
 </style>
 </head>
+
 <body>
 <h2>Quiz App — JavaScript Basics</h2>
 
 <div id="quiz">
   <div id="qText"></div>
   <div id="options"></div>
+
   <div>
     <button id="prevBtn" class="nav">Prev</button>
     <button id="skipBtn" class="nav">Skip</button>
     <button id="saveBtn" class="nav">Save & Continue</button>
-    <button id="nextBtn" class="nav" disabled>Next</button>
   </div>
+
   <div id="progress"></div>
 </div>
 
@@ -82,7 +136,6 @@ let userAnswers = Array(QUESTIONS.length).fill(null);
 
 const qText = document.getElementById('qText');
 const optionsDiv = document.getElementById('options');
-const nextBtn = document.getElementById('nextBtn');
 const prevBtn = document.getElementById('prevBtn');
 const skipBtn = document.getElementById('skipBtn');
 const saveBtn = document.getElementById('saveBtn');
@@ -101,67 +154,85 @@ function shuffleArray(a){
 
 function startQuiz(){
   questions = shuffleArray(QUESTIONS.slice());
-  current=0; score=0;
+  current = 0;
+  score = 0;
   userAnswers.fill(null);
-  resultDiv.style.display='none';
-  document.getElementById('quiz').style.display='';
+
+  resultDiv.style.display = 'none';
+  document.getElementById('quiz').style.display = '';
+
   loadQuestion();
 }
 
 function loadQuestion(){
   const q = questions[current];
   qText.textContent = (current+1) + '. ' + q.text;
-  optionsDiv.innerHTML='';
-  q.choices.forEach((choice, idx)=>{
+  optionsDiv.innerHTML = '';
+
+  q.choices.forEach((choice, idx) => {
     const btn = document.createElement('button');
     btn.textContent = choice;
-    btn.className='option';
-    btn.disabled = false;
-    if(userAnswers[current] !== null){ btn.disabled=true; }
-    btn.addEventListener('click', ()=>selectAnswer(idx, btn));
+    btn.className = 'option';
+
+    if(userAnswers[current] !== null){
+      btn.disabled = true;
+    }
+
+    btn.addEventListener('click', () => selectAnswer(idx, btn));
     optionsDiv.appendChild(btn);
   });
-  nextBtn.disabled = true;
-  if(userAnswers[current] !== null) nextBtn.disabled=false;
 
   progress.textContent = `Question ${current+1} of ${questions.length} | Score ${score}/${questions.length}`;
 }
 
 function selectAnswer(idx, btn){
   if(userAnswers[current] !== null) return;
+
   userAnswers[current] = idx;
   const q = questions[current];
+
   const allButtons = optionsDiv.querySelectorAll('button');
-  allButtons.forEach(b=>b.disabled=true);
+  allButtons.forEach(b => b.disabled = true);
 
-  if(idx===q.correct){ score++; btn.textContent+=' ✅'; }
-  else { btn.textContent+=' ❌'; allButtons[q.correct].textContent+=' ✅'; }
-
-  nextBtn.disabled = false;
+  if(idx === q.correct){
+    score++;
+    btn.textContent += ' ✅';
+  } else {
+    btn.textContent += ' ❌';
+    allButtons[q.correct].textContent += ' ✅';
+  }
 }
 
-nextBtn.addEventListener('click', ()=>{
-  if(current<questions.length-1){ current++; loadQuestion(); }
-  else showResult();
+prevBtn.addEventListener('click', () => {
+  if(current > 0){
+    current--;
+    loadQuestion();
+  }
 });
 
-prevBtn.addEventListener('click', ()=>{
-  if(current>0){ current--; loadQuestion(); }
+skipBtn.addEventListener('click', () => {
+  if(current < questions.length - 1){
+    current++;
+    loadQuestion();
+  } else {
+    showResult();
+  }
 });
 
-skipBtn.addEventListener('click', ()=>{
-  if(current<questions.length-1){ current++; loadQuestion(); }
-});
+saveBtn.addEventListener('click', () => {
+  if(userAnswers[current] === null) return;
 
-saveBtn.addEventListener('click', ()=>{
-  if(userAnswers[current]===null) return;
-  if(current<questions.length-1){ current++; loadQuestion(); }
-  else showResult();
+  if(current < questions.length - 1){
+    current++;
+    loadQuestion();
+  } else {
+    showResult();
+  }
 });
 
 function showResult(){
-  document.getElementById('quiz').style.display='none';
-  resultDiv.style.display='';
+  document.getElementById('quiz').style.display = 'none';
+  resultDiv.style.display = '';
   scoreText.textContent = `You scored ${score} out of ${questions.length}`;
 }
 
@@ -169,5 +240,6 @@ restart.addEventListener('click', startQuiz);
 
 startQuiz();
 </script>
+
 </body>
 </html>
